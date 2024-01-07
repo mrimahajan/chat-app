@@ -21,7 +21,7 @@ io.on('connection', (socket) => {
 
 
 const PORT = process.env.PORT || 8000;
-const HOSTNAME = process.env.HOSTNAME || 'localhost';
+const HOSTNAME = process.env.HOSTNAME || `http://localhost:${PORT}`;
 server.listen(PORT, () => {
-    console.log(`server started as http://${process.env.HOSTNAME}:${PORT}`);
+    console.log(`server started at ${HOSTNAME}`);
 });
