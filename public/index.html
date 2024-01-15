@@ -69,6 +69,11 @@
             border-radius: 50%;
             margin-top: 5px;
         }
+
+        #disconnect-btn {
+            display: none;
+        }
+
     </style>
     
     
@@ -76,7 +81,8 @@
 
 <body>
     <div>
-        <button onclick="chatBtnHandler()">Connect to Chat Room</button>
+        <button id="connect-btn" onclick="chatBtnHandler()">Connect to Chat Room</button>
+        <button id="disconnect-btn" onclick="leaveRoomHandler(event)">Leave Chat Room</button>
         <span id="green-circle"></span>
     </div>
     <ul id="messages"></ul>
@@ -91,27 +97,41 @@
         let socket;
         const chatBtnHandler = () => {
             socket = io();
+            document.getElementById('connect-btn').style.display = 'none';
+            document.getElementById('disconnect-btn').style.display = 'inline-block';
             document.getElementById('green-circle').style.display = 'inline-block';
+            socket.connect();
             socket.on('server-msg',(serverMsg) => {
-                //console.log('server-msg',serverMsg);
+               //console.log('server-offset',serverOffset);
                 const item = document.createElement('li');
                 item.textContent = serverMsg;
                 messages.appendChild(item);
                 window.scrollTo(0, document.body.scrollHeight);
+                //socket.auth.serverOffset = serverOffset;
             });
         };
-        
-        
+
+        const leaveRoomHandler = (e) => {
+           e.preventDefault();
+           document.getElementById('connect-btn').style.display = 'inline-block';
+           document.getElementById('disconnect-btn').style.display = 'none';
+           document.getElementById('green-circle').style.display = 'none';
+           messages.innerHTML = '';
+           window.scrollTo(0, document.body.scrollHeight);
+           socket.disconnect();
+           socket.close();
+        };        
 
         const formSubmitHandler = (e) => {
             e.preventDefault();
-            if (!socket) {
+            if (!socket?.connected) {
                 alert('Please join the chat room');
             }
             else if (!input?.value) {
                 alert('Please enter the message to send');
             }
             else {
+                // compute a unique offset
                 socket.emit('client-msg', input.value);
                 input.value = '';
             }
